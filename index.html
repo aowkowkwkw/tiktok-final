@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TikTok Downloader</title>
+    <style>
+        /* Global Styles */
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Arial', sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            flex-direction: column;
+            padding: 20px;
+            box-sizing: border-box;
+            transition: background-color 0.3s, color 0.3s;
+        }
+
+        h1 {
+            font-size: 2rem;
+            margin-bottom: 20px;
+        }
+
+        p {
+            font-size: 1.1rem;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+
+        /* Input Styles */
+        .input-container {
+            display: flex;
+            justify-content: center;
+            flex-direction: column;
+            width: 100%;
+            max-width: 400px;
+            margin-bottom: 20px;
+        }
+
+        input[type="text"] {
+            flex: 1;
+            padding: 15px;
+            border-radius: 5px;
+            border: 1px solid #ddd;
+            font-size: 1rem;
+            outline: none;
+            margin-bottom: 15px;
+        }
+
+        button {
+            padding: 15px;
+            border: none;
+            border-radius: 5px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+            width: 100%;
+            max-width: 400px;
+            align-self: center;
+            margin-bottom: 10px;
+        }
+
+        button:hover {
+            opacity: 0.9;
+        }
+
+        /* Result Styles */
+        .result {
+            margin-top: 20px;
+            text-align: center;
+            display: none;
+            width: 100%;
+        }
+
+        .result p {
+            font-size: 1rem;
+        }
+
+        /* Footer Styles */
+        footer {
+            margin-top: 40px;
+            font-size: 0.9rem;
+            text-align: center;
+        }
+
+        /* Light theme styles */
+        @media (prefers-color-scheme: light) {
+            body {
+                background-color: #f4f4f4;
+                color: #333;
+            }
+
+            input[type="text"] {
+                background-color: #fff;
+                border: 1px solid #ddd;
+                color: #333;
+            }
+
+            button {
+                background-color: #ff0050;
+                color: #fff;
+            }
+
+            h1 {
+                color: #ff0050;
+            }
+
+            p {
+                color: #666;
+            }
+
+            .result p {
+                color: #666;
+            }
+
+            footer {
+                color: #999;
+            }
+        }
+
+        /* Dark theme styles */
+        @media (prefers-color-scheme: dark) {
+            body {
+                background-color: #181818;
+                color: #f4f4f4;
+            }
+
+            input[type="text"] {
+                background-color: #333;
+                border: 1px solid #555;
+                color: #f4f4f4;
+            }
+
+            button {
+                background-color: #ff0050;
+                color: #fff;
+            }
+
+            h1 {
+                color: #ff5075;
+            }
+
+            p {
+                color: #aaa;
+            }
+
+            .result p {
+                color: #ccc;
+            }
+
+            footer {
+                color: #666;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <h1>TikTok Downloader</h1>
+    <p>Enter the TikTok video URL below and choose to download video or audio:</p>
+    
+    <div class="input-container">
+        <input type="text" id="videoUrl" placeholder="Paste TikTok video URL here">
+        <button onclick="downloadVideo()">Download Video</button>
+        <button onclick="downloadAudio()">Download Audio</button>
+    </div>
+
+    <div class="result" id="result"></div>
+
+    <footer>
+        &copy; 2024 TikTok Downloader. All rights reserved.
+    </footer>
+
+    <!-- Axios Library -->
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+
+    <script>
+        function initiateDownload(url, filename) {
+            const linkElement = document.createElement('a');
+            linkElement.href = url;
+            linkElement.download = filename;
+            document.body.appendChild(linkElement);
+            linkElement.click();
+            document.body.removeChild(linkElement);
+        }
+
+        function downloadVideo() {
+            const videoUrl = document.getElementById('videoUrl').value;
+            if (videoUrl === '') {
+                alert('Please enter a TikTok video URL');
+                return;
+            }
+
+            const apiEndpoint = `https://widipe.com/download/ttdl?url=${encodeURIComponent(videoUrl)}`;
+
+            axios.get(apiEndpoint)
+                .then(response => {
+                    const data = response.data;
+                    if (data && data.data && data.data.result.video[0]) {
+                        const downloadLink = data.data.result.video[0];
+                        initiateDownload(downloadLink, 'TikTokVideo.mp4');
+                        document.getElementById('result').innerHTML = '<p>Downloading video...</p>';
+                    } else {
+                        document.getElementById('result').innerHTML = '<p>Failed to retrieve the video.</p>';
+                    }
+                    document.getElementById('result').style.display = 'block';
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    document.getElementById('result').innerHTML = '<p>An error occurred. Please try again.</p>';
+                    document.getElementById('result').style.display = 'block';
+                });
+        }
+
+        function downloadAudio() {
+            const videoUrl = document.getElementById('videoUrl').value;
+            if (videoUrl === '') {
+                alert('Please enter a TikTok video URL');
+                return;
+            }
+
+            const apiEndpoint = `https://widipe.com/download/ttdl?url=${encodeURIComponent(videoUrl)}`;
+
+            axios.get(apiEndpoint)
+                .then(response => {
+                    const data = response.data;
+                    if (data && data.data && data.data.result.audio[0]) {
+                        const downloadLink = data.data.result.audio[0];
+                        initiateDownload(downloadLink, 'TikTokAudio.mp3');
+                        document.getElementById('result').innerHTML = '<p>Downloading audio...</p>';
+                    } else {
+                        document.getElementById('result').innerHTML = '<p>Failed to retrieve the audio.</p>';
+                    }
+                    document.getElementById('result').style.display = 'block';
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    document.getElementById('result').innerHTML = '<p>An error occurred. Please try again.</p>';
+                    document.getElementById('result').style.display = 'block';
+                });
+        }
+    </script>
+
+</body>
+</html>
